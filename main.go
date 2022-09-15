@@ -82,6 +82,21 @@ func executeCheck(event *corev2.Event) (int, error) {
 		checkItem(&it)
 	}
 
+	switch state {
+	case sensu.CheckStateOK:
+		fmt.Println("OK")
+
+	case sensu.CheckStateWarning:
+		fmt.Println("WARNING")
+
+	case sensu.CheckStateCritical:
+		fmt.Println("CRITICAL")
+
+	default:
+		fmt.Println("UNKNOWN")
+	}
+
+	fmt.Println()
 	table.Render()
 
 	return state, nil
