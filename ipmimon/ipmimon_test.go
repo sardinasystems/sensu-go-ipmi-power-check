@@ -170,8 +170,7 @@ const testingFujiOSCtrl003CSV = `ID,Name,Type,State,Reading,Units,Event
 187,iRMC,OEM Reserved,N/A,N/A,N/A,'OEM Event = 0000h'
 `
 
-const testingFujiOSHv003CSV = `
-Caching SDR repository information: /root/.freeipmi/sdr-cache/sdr-cache-gm-srv-oshv-003.localhost
+const testingFujiOSHv003CSV = `Caching SDR repository information: /root/.freeipmi/sdr-cache/sdr-cache-gm-srv-oshv-003.localhost
 Caching SDR record 152 of 152 (current record ID 10864) 
 ID,Name,Type,State,Reading,Units,Event
 32,Ambient,Temperature,Nominal,23.50,C,'OK'
@@ -269,14 +268,14 @@ ID,Name,Type,State,Reading,Units,Event
 `
 
 func TestParseCSV(t *testing.T) {
-
 	testCases := []struct {
 		name string
 		csv  string
+		typ  string
 	}{
-		{"p097", testingP097CSV},
-		{"os-ctrl-003", testingFujiOSCtrl003CSV},
-		{"os-hv-003", testingFujiOSHv003CSV},
+		{"p097", testingP097CSV, TypePowerSupply},
+		{"os-ctrl-003", testingFujiOSCtrl003CSV, TypePowerUnit},
+		{"os-hv-003", testingFujiOSHv003CSV, TypePowerUnit},
 	}
 
 	for _, tc := range testCases {
@@ -286,6 +285,26 @@ func TestParseCSV(t *testing.T) {
 			report, err := ParseCSV([]byte(tc.csv))
 			assert.NoError(err)
 			assert.NotNil(report)
+
+			psuReport := report.Type(tc.typ)
+			assert.NotNil(psuReport)
 		})
+	}
+}
+
+func TestItem_Events(t *testing.T) {
+	assert := assert.New(t)
+
+	baseReport, err := ParseCSV([]byte(testingP097CSV))
+	assert.NoError(err)
+
+	line66rep := baseReport.Filter(func(it *Item) bool { return it.ID == 66 })
+	if assert.NotEmpty(line66rep) {
+		expected := []string{
+			"Presence detected",
+			"Power Supply Failure detected"}
+
+		events := line66rep[0].Events()
+		assert.Equal(expected, events)
 	}
 }

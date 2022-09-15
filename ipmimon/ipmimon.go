@@ -2,12 +2,26 @@
 package ipmimon
 
 import (
+	"bytes"
 	"context"
+	"encoding/csv"
 	"fmt"
 	"os/exec"
+	"strings"
 	"syscall"
 
 	"github.com/gocarina/gocsv"
+)
+
+const (
+	TypePowerSupply = "Power Supply"
+	TypePowerUnit   = "Power Unit"
+)
+
+const (
+	StateNominal  = "Nominal"
+	StateWarning  = "Warning"
+	StateCritical = "Critical"
 )
 
 // Item represents one line from the report
@@ -25,11 +39,17 @@ type Item struct {
 }
 
 // Report represent parsed report
-type Report = []Item
+type Report []Item
 
 // ParseCSV parses report csv into Report
 func ParseCSV(data []byte) (Report, error) {
 	items := make([]Item, 0)
+
+	// skip any messages before report table
+	idx := bytes.Index(data, []byte("ID,"))
+	if idx > 0 {
+		data = data[idx:]
+	}
 
 	err := gocsv.UnmarshalBytes(data, &items)
 	if err != nil {
@@ -52,4 +72,33 @@ func GetReport(ctx context.Context) (Report, error) {
 	}
 
 	return ParseCSV(out)
+}
+
+func (report Report) Filter(testFunc func(*Item) bool) Report {
+	items := make([]Item, 0)
+
+	for _, it := range report {
+		if testFunc(&it) {
+			items = append(items, it)
+		}
+	}
+
+	return Report(items)
+}
+
+func (report Report) Type(typ string) Report {
+	return report.Filter(func(it *Item) bool {
+		return it.Type == typ
+	})
+}
+
+func (it *Item) Events() []string {
+	r := csv.NewReader(strings.NewReader(strings.ReplaceAll(it.Event, "'", "\"")))
+	r.Comma = ' '
+	fields, err := r.Read()
+	if err != nil {
+		panic(err)
+	}
+
+	return fields
 }
