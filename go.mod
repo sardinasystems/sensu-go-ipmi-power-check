@@ -5,7 +5,7 @@ go 1.18
 require (
 	github.com/gocarina/gocsv v0.0.0-20230123225133-763e25b40669
 	github.com/olekukonko/tablewriter v0.0.5
-	github.com/sensu/core/v2 v2.16.1
+	github.com/sensu/core/v2 v2.17.0
 	github.com/sensu/sensu-plugin-sdk v0.18.0
 	github.com/stretchr/testify v1.8.1
 )
