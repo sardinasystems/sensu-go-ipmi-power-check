@@ -54,7 +54,7 @@ func executeCheck(event *corev2.Event) (int, error) {
 
 	report, err := ipmimon.GetReport(ctx)
 	if err != nil {
-		return 0, err
+		return sensu.CheckStateUnknown, err
 	}
 
 	puReport := report.Type(ipmimon.TypePowerUnit)
