@@ -6,7 +6,7 @@ require (
 	github.com/gocarina/gocsv v0.0.0-20231116093920-b87c2d0e983a
 	github.com/olekukonko/tablewriter v0.0.5
 	github.com/sensu/core/v2 v2.20.0
-	github.com/sensu/sensu-plugin-sdk v0.18.0
+	github.com/sensu/sensu-plugin-sdk v0.19.0
 	github.com/stretchr/testify v1.8.4
 )
 
