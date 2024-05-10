@@ -61,7 +61,7 @@ func ParseCSV(data []byte) (Report, error) {
 
 // GetReport run ipmimonitoring and parse report
 func GetReport(ctx context.Context) (Report, error) {
-	cmd := exec.CommandContext(ctx, "ipmimonitoring", "--comma-separated-output")
+	cmd := exec.CommandContext(ctx, "ipmimonitoring", "--comma-separated-output", "--sdr-cache-recreate")
 	cmd.SysProcAttr = &syscall.SysProcAttr{
 		Pdeathsig: syscall.SIGKILL,
 	}
